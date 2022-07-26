@@ -5,15 +5,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.page.PageMethod;
 import com.helen.delay.service.api.IPeopleService;
+import com.helen.delay.service.delay.aop.annotation.Delay;
 import com.helen.delay.service.model.People;
 import com.helen.delay.service.repo.PeopleMapper;
 import com.helen.delay.shared.domain.param.PeopleReq;
 import com.helen.delay.shared.domain.vo.PeopleListVo;
+import com.helen.delay.shared.enums.RedisDelayQueueEnum;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: 樊喆
@@ -26,6 +29,7 @@ public class PeopleServiceImpl extends ServiceImpl<PeopleMapper, People> impleme
     private PeopleMapper peopleMapper;
 
     @Override
+    @Delay(code = RedisDelayQueueEnum.SINGLE_QUERY_IN_PROGRESS ,delay = 15 , timeUnit = TimeUnit.SECONDS)
     public People queryPeopleById(Long id) {
         return peopleMapper.selectById(id);
     }
@@ -36,6 +40,7 @@ public class PeopleServiceImpl extends ServiceImpl<PeopleMapper, People> impleme
     }
 
     @Override
+    @Delay(code = RedisDelayQueueEnum.BATCH_QUERY_IN_PROGRESS ,delay = 15 , timeUnit = TimeUnit.SECONDS)
     public PageInfo<PeopleListVo> selectAllPageInfo(PeopleReq peopleReq) {
         //开启分页
         PageMethod.startPage(peopleReq.getPageNumber(),peopleReq.getPageSize());
